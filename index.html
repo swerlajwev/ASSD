@@ -63,17 +63,14 @@ input[type=file]{display:none;}
 .numbers>div{display:flex;flex-direction:column;gap:.15rem;}
 .num-lbl{font-family:var(--font-mono);font-size:.55rem;letter-spacing:.1em;color:var(--text-mute);font-weight:500;}
 .num-val{font-family:var(--font-mono);font-size:1.05rem;font-weight:600;}
-.rest-block{margin-bottom:.55rem;}
+.rest-block{}
 .rest-main{font-size:.92rem;font-weight:500;}
 .rest-main b{font-weight:700;}
 .rest-sub{font-size:.72rem;color:var(--text-mute);margin-top:.15rem;}
-.prog-line{font-size:.75rem;color:var(--text-dim);line-height:1.5;background:#f4f4f5;padding:.55rem .7rem;border-radius:5px;}
-.prog-line b{font-weight:700;}
-.legend{margin-top:2.5rem;padding:1.4rem 1.5rem;background:var(--surface);border:1px solid var(--border);border-radius:8px;font-size:.85rem;color:var(--text-dim);line-height:1.8;}
+.legend{margin-bottom:2rem;padding:1.4rem 1.5rem;background:var(--surface);border:1px solid var(--border);border-radius:8px;font-size:.85rem;color:var(--text-dim);line-height:1.8;}
 .legend b{color:var(--text);font-weight:600;}
 .legend code{font-family:var(--font-mono);background:#f4f4f5;padding:.1rem .4rem;border-radius:3px;font-size:.75rem;color:var(--green);font-weight:600;}
 .legend-title{font-family:var(--font-display);font-size:1rem;font-weight:600;letter-spacing:.05em;color:var(--text);margin-bottom:.9rem;}
-.footer{margin-top:2rem;text-align:center;font-family:var(--font-mono);font-size:.7rem;color:var(--text-faint);letter-spacing:.15em;}
 .err{background:#fef2f2;border:1px solid #fecaca;color:var(--red);padding:1rem;border-radius:8px;font-size:.85rem;margin-top:1.5rem;font-family:var(--font-mono);word-break:break-word;}
 #result{display:none;}
 @media (max-width: 860px) {
@@ -110,7 +107,7 @@ input[type=file]{display:none;}
       <div class="drop-icon">&#128194;</div>
       <div class="drop-text">CSV AUSWÄHLEN</div>
       <div class="drop-sub">oder hierher ziehen</div>
-  <<input type="file" id="file-input" accept="*/*">
+      <input type="file" id="file-input" accept="*/*">
     </label>
     <div class="hint">
       WebUntis &rarr; Meine Abwesenheiten &rarr; CSV-Export<br>
@@ -126,20 +123,20 @@ input[type=file]{display:none;}
         <div class="eyebrow">Fehlstunden-Übersicht &middot; 3BFX</div>
         <div class="h1">HTL-BILANZ <span class="muted">/</span> SCHULJAHR 2026/27</div>
         <div class="subtitle" id="result-sub"></div>
-        <button class="reset-btn" id="reset-btn">Andere CSV laden</button>
+        <button class="reset-btn" id="reset-btn">Andere Datei laden</button>
       </div>
     </div>
-    <div class="summary" id="summary"></div>
-    <div class="grid" id="grid"></div>
+
     <div class="legend">
       <div class="legend-title">So liest du die Karten</div>
       <b>Bisher gefehlt</b> &mdash; wie viele Stunden du in dem Fach schon verpasst hast.<br>
       <b>Erlaubt (Jahr)</b> &mdash; 50% aller Stunden, die im Schuljahr in dem Fach stattfinden.<br>
       <b>Quote bisher</b> &mdash; gefehlt geteilt durch bisher gehaltene Stunden.<br>
-      <b>Fortschrittsbalken</b> &mdash; verbrauchtes Jahres-Budget. Bei <code>50%</code> ist die Grenze erreicht.<br>
-      <b>Prognose</b> &mdash; wo du landest, wenn du weiter so oft fehlst wie bisher.
+      <b>Fortschrittsbalken</b> &mdash; verbrauchtes Jahres-Budget. Bei <code>50%</code> ist die Grenze erreicht.
     </div>
-    <div class="footer">/// KEIN BOCK AUF SYSTEMSKLAVE ///</div>
+
+    <div class="summary" id="summary"></div>
+    <div class="grid" id="grid"></div>
   </div>
 </div>
 
@@ -166,7 +163,23 @@ const FERIEN = [["2026-10-26","2026-11-02"],["2026-12-07","2026-12-08"],["2026-1
 const SCHULJAHR_START = "2026-09-07";
 const SCHULJAHR_ENDE  = "2027-07-02";
 
-const FACH_FARBEN = {"AM":"#4a90d9","BETP":"#c9a227","BSPK":"#4caf50","DUK":"#e91e63","E":"#ff9800","INSI":"#9c27b0","KVF":"#d4a017","MEDT":"#f44336","NWTK-VT":"#00bcd4","NWTK-S":"#009688","NWTK (VT+S)":"#00796b","RK":"#673ab7","SYT":"#2196f3","SYTCP/NWTCP":"#3f51b5","UNF":"#607d8b"};
+const FACH_FARBEN = {
+  "AM":"#4a90d9",
+  "BETP":"#c9a227",
+  "BSPK":"#4caf50",
+  "DUK":"#e91e63",
+  "E":"#ff9800",
+  "INSI":"#9c27b0",
+  "KVF":"#d4a017",
+  "MEDT":"#f44336",
+  "NWTK-VT":"#00bcd4",
+  "NWTK-S":"#009688",
+  "NWTK (VT+S)":"#7c3aed",
+  "RK":"#673ab7",
+  "SYT":"#2196f3",
+  "SYTCP/NWTCP":"#3f51b5",
+  "UNF":"#607d8b",
+};
 const SAMMELANSICHTEN = { "NWTK (VT+S)": ["NWTK-VT","NWTK-S"] };
 
 function parseHM(s){ const [h,m]=s.split(":").map(Number); return h*60+m; }
@@ -290,18 +303,18 @@ function bewerte(gJetzt,gJahr,gefehlt,faecher){
     const erlaubt=Math.floor(gz/2);
     const rest=erlaubt-gf;
     const quote=gj>0?gf/gj:0;
-    const restStunden=gz-gj;
-    const wennSoWeiter=gf+Math.round(restStunden*quote);
-    const prognose=gz>0?wennSoWeiter/gz:0;
-    const ueberUnter=wennSoWeiter-erlaubt;
     const budgetPct=erlaubt>0?Math.min(gf/erlaubt,1.5):0;
+
+    // Ampel basiert auf Restbudget (nicht Prognose)
+    const restRatio = erlaubt>0 ? rest/erlaubt : 0;
     let amp,txt;
     if(rest<0){ amp="rot"; txt="ÜBERZOGEN"; }
-    else if(prognose>=0.5){ amp="rot"; txt="KRITISCH"; }
-    else if(prognose>=0.4||rest<=3){ amp="gelb"; txt="WARNUNG"; }
-    else if(prognose>=0.3||rest<=8){ amp="orange"; txt="BEOBACHTEN"; }
+    else if(restRatio<0.15){ amp="rot"; txt="KRITISCH"; }
+    else if(restRatio<0.30){ amp="gelb"; txt="WARNUNG"; }
+    else if(restRatio<0.50){ amp="orange"; txt="BEOBACHTEN"; }
     else { amp="gruen"; txt="OK"; }
-    zeilen.push({fach,gj,gz,gf,erlaubt,rest,quote,prognose,wennSoWeiter,ueberUnter,budgetPct,amp,txt});
+
+    zeilen.push({fach,gj,gz,gf,erlaubt,rest,quote,budgetPct,amp,txt});
   }
   return zeilen;
 }
@@ -318,11 +331,6 @@ function renderKarte(z){
   if(z.rest>0){ restText=`Noch <b>${z.rest} Stunden</b> Luft`; restSub="bis zur 50%-Grenze"; }
   else if(z.rest===0){ restText="<b>Budget gerade aufgebraucht</b>"; restSub="ab jetzt wird jede Stunde kritisch"; }
   else { restText=`<b>${Math.abs(z.rest)} Stunden drüber</b>`; restSub="du bist über der Grenze"; }
-  let progHtml="";
-  if(z.gz>0){
-    if(z.ueberUnter>0) progHtml=`Wenn du so weitermachst: <b style="color:#dc2626;">${Math.round(z.prognose*100)}%</b> im Juli &middot; <b>${z.ueberUnter} Std. über</b>`;
-    else progHtml=`Wenn du so weitermachst: <b style="color:#16a34a;">${Math.round(z.prognose*100)}%</b> im Juli &middot; <b>${Math.abs(z.ueberUnter)} Std. Puffer</b>`;
-  }
   return `<div class="card" style="--fachfarbe:${farbe};">
     <div class="card-head">
       <div class="fach-wrap"><span class="fach-dot"></span><span class="fach-name">${escapeHtml(z.fach)}</span></div>
@@ -341,7 +349,6 @@ function renderKarte(z){
       <div class="rest-main" style="color:${restFarbe};">${restText}</div>
       <div class="rest-sub">${restSub}</div>
     </div>
-    <div class="prog-line">${progHtml}</div>
   </div>`;
 }
 function zeigeErgebnis(eintraege){
